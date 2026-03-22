@@ -25,8 +25,8 @@ def trim_and_export(self, session_id=None):
     else:
         save_path = os.path.join(videos_dir, f"{session_id}.mp4")
     
-   cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG, [
-    cv2.CAP_PROP_AUDIO_STREAM, -1  # disable audio stream
+    cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG, [
+        cv2.CAP_PROP_AUDIO_STREAM, -1  # disable audio stream
 ])
     
     # Determine output size from first frame (after rotation/crop)
