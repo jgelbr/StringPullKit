@@ -1,4 +1,3 @@
-import deeplabcut
 from tkinter import messagebox
 import os
 import glob
@@ -9,6 +8,7 @@ from stringpullkit.gui import config_manager
 
 
 def run_dlc_analysis(self):
+    import deeplabcut
     selected_parts = [part for part, var in self.dlc_vars.items() if var.get()]
     if not selected_parts:
         messagebox.showwarning("No Selection", "Please select at least one body part for analysis.")
