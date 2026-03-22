@@ -224,7 +224,7 @@ class PreProcessor:
         analysis_frame.pack(anchor="w", pady=(5,0), side="left")
 
         self.dlc_vars = {}
-        ttk.Label(analysis_frame, text="Select DLC body parts:").pack(anchor="w")
+        #ttk.Label(analysis_frame, text="Select DLC body parts:").pack(anchor="w")
        
         for part in ['Arms', 'Ears', 'Feet', 'Hands', 'String', 'Torso']:
             var = tk.BooleanVar(value=True)
@@ -236,10 +236,10 @@ class PreProcessor:
             # ).pack(anchor="w")
     # Remove the checkboxes because the current program requires all parts (no checks in place yet). Could add back later. 
 
-        self.run_dlc_button = ttk.Button(analysis_frame, text="Run DLC Analysis", command=self.run_dlc_analysis)
+        self.run_dlc_button = ttk.Button(analysis_frame, text="Run DLC Tracking", command=self.run_dlc_analysis)
         self.run_dlc_button.pack(anchor="w", pady=(10, 5))
 
-        self.analyze_hands_button = ttk.Button(analysis_frame, text="Plot Results", command=self.plot_results)
+        self.analyze_hands_button = ttk.Button(analysis_frame, text="Run Kinematic Analysis", command=self.plot_results)
         self.analyze_hands_button.pack(anchor="w")
 
         self.show_plot = tk.BooleanVar(value=False)
