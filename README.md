@@ -21,7 +21,7 @@ git clone https://github.com/jgelbr/StringPullKit.git
 cd StringPullKit
 pip install -e .
 ```
-To include DeepLabCut support (required for running DLC tracking from the GUI:
+To include DeepLabCut support (required for running DLC tracking from the GUI):
 ```bash
 pip install -e ".[dlc]"
 ```
