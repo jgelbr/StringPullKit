@@ -10,6 +10,12 @@ The string-pull task is a sensitive measure of fine forelimb coordination and po
 * __Batch processing__ — headless processing of entire cohorts from a single parameter file (WORK IN PROGRESS)
 
 # Installation
+Create a new `conda` environment:
+```bash
+conda create -n stringpull python=3.10
+conda activate stringpull
+```
+Then install from the github:
  ```bash
 git clone https://github.com/jgelbr/StringPullKit.git
 cd StringPullKit
