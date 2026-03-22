@@ -1,0 +1,2 @@
+[console_scripts]
+stringpullkit = stringpullkit.__main__:main
