@@ -1,5 +1,12 @@
+
+
 # StringPullKit
 Automated pipeline for kinematic analysis of mouse string-pulling behaviour. Combines a video preprocessing GUI, DeepLabCut pose estimation, and an analysis pipeline to extract detailed forelimb, head, postural, and sensorimotor metrics from string-pull recordings.
+
+![movie2_hand_kinematics-ezgif com-speed](https://github.com/user-attachments/assets/5823feb2-b6b7-4090-ad05-ae0f99e17d76)
+![movie3_head_orientation-ezgif com-speed](https://github.com/user-attachments/assets/62da4d4e-7161-4549-9aed-79f7a81505fc)
+![movie4_torso_orientation-ezgif com-speed](https://github.com/user-attachments/assets/0d5c79be-03d1-46b1-b888-d2fb054a3aed)
+
 
 # Overview
 The string-pull task is a sensitive measure of fine forelimb coordination and postural control in rodents. StringPullKit provides end-to-end tooling for:
@@ -69,7 +76,7 @@ Networks:
 * `String` — nose + string reference point
 
 # Requirements
-* Python (version?)
+* Python (3.13)
 * numpy, scipy, pandas, matplotlib, seaborn
 * h5py, xlsxwriter
 * opencv-python, Pillow
