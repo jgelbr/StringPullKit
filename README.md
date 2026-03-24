@@ -92,6 +92,8 @@ metrics.md
 
 additional functionalities sections
 
+walkthrough & exmple mouse
+
 demo videos and data
 
 batch processing 
