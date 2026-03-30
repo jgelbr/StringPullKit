@@ -242,6 +242,10 @@ class PreProcessor:
         self.analyze_hands_button = ttk.Button(analysis_frame, text="Run Kinematic Analysis", command=self.plot_results)
         self.analyze_hands_button.pack(anchor="w")
 
+        self.generate_plot = tk.BooleanVar(value=True)
+        self.generate_plot_checkbox = ttk.Checkbutton(analysis_frame, text='Generate Plots', variable=self.generate_plot)
+        self.generate_plot_checkbox.pack(anchor="w")
+        
         self.show_plot = tk.BooleanVar(value=False)
         self.show_plot_checkbox = ttk.Checkbutton(analysis_frame, text="Show Plots", variable=self.show_plot)
         self.show_plot_checkbox.pack(anchor="w")
@@ -866,7 +870,8 @@ class PreProcessor:
         height = self.original_crop_rect if self.original_crop_rect is not None else self.original_height
 
         analysis.run_analysis(video_path=self.video_path, dlc_paths=self.dlc_csv_paths, save_dir=self.save_path, session_id=self.session_id, fps=self.fps, total_frames=self.total_frames,
-                       scale_factor=self.scale_factor, height=height, show_plot=self.show_plot.get())
+                       scale_factor=self.scale_factor, height=height, 
+                              generate_plot=self.generate_plot.get(), show_plot=self.show_plot.get())
 
 
         self.set_status(f"Analysis saved to {self.save_path}")
