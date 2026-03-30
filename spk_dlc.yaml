@@ -1,0 +1,11 @@
+name: stringpull-dlc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - cudatoolkit=11.8       # remove if CPU-only
+  - pip
+  - pip:
+    - deeplabcut[tf]       # or deeplabcut[pytorch]
+    - stringpullkit        # installs your package too
