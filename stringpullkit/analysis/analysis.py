@@ -4,7 +4,7 @@ from stringpullkit.analysis import SessionData, compute_metrics, plot_functions,
 
 
 def run_analysis(video_path=None, dlc_paths=None, save_dir=None, fps=120, session_id="", total_frames=0, likelihood_threshold=0.6,
-                        smoothing_window=25, smoothing_poly=2, scale_factor=None, height=None, show_plot=False):
+                        smoothing_window=25, smoothing_poly=2, scale_factor=None, height=None, generate_plot=True, show_plot=False):
 
     session = SessionData.SessionData(video_path=video_path, dlc_paths=dlc_paths, save_dir=save_dir, fps=fps, session_id=session_id,
                  total_frames=total_frames, likelihood_threshold=likelihood_threshold, smoothing_window=smoothing_window, 
@@ -22,8 +22,9 @@ def run_analysis(video_path=None, dlc_paths=None, save_dir=None, fps=120, sessio
     print("Saving session metrics...")
     export_metrics.save_all_metrics(session)
     
-    print("Plotting session metrics...")
-    plot_functions.plot_all_metrics(session)
+    if generate_plot:
+      print("Plotting session metrcs...")
+      plot_functions.plot_all_metrics(session)
     
     print("Analysis complete.")
 
