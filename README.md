@@ -32,7 +32,7 @@ To include DeepLabCut support (required for running DLC tracking from the GUI):
 ```bash
 pip install -e ".[dlc]"
 ```
-Note: DeepLabCut has its own environment requiremnts. Consult the DeepLabCut installation guide if you haven't set it up already. You can alternatively use StringPullKit's analysis pipeline on existing DLC output without installing DeepLabCut, provided the models correspond to those used in the toolkit.
+Note: DeepLabCut has its own environment requirements. Consult the DeepLabCut installation guide if you haven't set it up already. You can alternatively use StringPullKit's analysis pipeline on existing DLC output without installing DeepLabCut, provided the models correspond to those used in the toolkit.
 
 # Quick Start
 __Launch the GUI__
