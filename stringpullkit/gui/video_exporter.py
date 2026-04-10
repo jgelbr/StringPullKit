@@ -1,6 +1,7 @@
 from tkinter import filedialog, messagebox, simpledialog
 import cv2
 import os
+os.environ["OPENCV_FFMPEG_READ_ATTEMPTS"] = "8192"
 
 def trim_and_export(self, session_id=None):
     if not self.video_path:
@@ -25,10 +26,8 @@ def trim_and_export(self, session_id=None):
     else:
         save_path = os.path.join(videos_dir, f"{session_id}.mp4")
     
-    cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG, [
-    cv2.CAP_PROP_AUDIO_STREAM, -1,
-    cv2.CAP_PROP_VIDEO_STREAM, 0
-])
+    cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG)
+    cap.set(cv2.CAP_PROP_AUDIO_STREAM, -1)
     
     # Determine output size from first frame (after rotation/crop)
     crop = self.crop_rect or self.original_crop_rect
@@ -100,10 +99,8 @@ def trim_and_export(self, session_id=None):
             continue
 
         # Reopen video capture for each clip range for reliable seeking
-        cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG, [
-    cv2.CAP_PROP_AUDIO_STREAM, -1,
-    cv2.CAP_PROP_VIDEO_STREAM, 0
-])
+        cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG)
+        cap.set(cv2.CAP_PROP_AUDIO_STREAM, -1)
         
         # Read and discard frames until we reach start position
         for i in range(start):
