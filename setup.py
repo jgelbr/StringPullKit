@@ -14,6 +14,7 @@ setup(
         "xlsxwriter",
         "opencv-python",
         "Pillow",
+        "ffmpeg-python",
 ],
     extras_require={
         "dlc": ["deeplabcut"],
