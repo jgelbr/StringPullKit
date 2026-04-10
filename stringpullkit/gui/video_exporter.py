@@ -28,7 +28,7 @@ def trim_and_export(self, session_id=None):
     crop = self.crop_rect or self.original_crop_rect
 
     try:
-        input_stream = ffmpeg.input(self.video_path)
+        input_stream = ffmpeg.input(self.video_path, noautorotate=None)
 
         segments = []
         for start, end in self.clip_ranges:
@@ -38,7 +38,7 @@ def trim_and_export(self, session_id=None):
             start_time = start / self.fps
             duration = (end - start + 1) / self.fps
 
-            segment = ffmpeg.input(self.video_path, ss=start_time, t=duration).video
+            segment = ffmpeg.input(self.video_path, ss=start_time, t=duration, noautorotate=None).video
 
             # Rotation
             if self.rotation_angle == 90:
