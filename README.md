@@ -34,6 +34,20 @@ pip install -e ".[dlc]"
 ```
 Note: DeepLabCut has its own environment requirements. Consult the DeepLabCut installation guide if you haven't set it up already. You can alternatively use StringPullKit's analysis pipeline on existing DLC output without installing DeepLabCut, provided the models correspond to those used in the toolkit.
 
+### System Dependencies
+This tool requires FFmpeg to be installed on your system:
+**Windows**
+```bash
+winget install ffmpeg
+```
+**Mac:**
+```bash
+brew install ffmpeg
+```
+**Linux:**
+```bash
+sudo apt install ffmpeg
+```
 # Quick Start
 __Launch the GUI__
 ```bash
@@ -81,6 +95,7 @@ Networks:
 * h5py, xlsxwriter
 * opencv-python, Pillow
 * deeplabcut (optional)
+* FFmpeg (system dependency, must be installed separately)
 See `requirements.txt` for details.
 
 # Licence
