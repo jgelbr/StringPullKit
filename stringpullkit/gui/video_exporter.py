@@ -1,7 +1,6 @@
-from tkinter import filedialog, messagebox, simpledialog
-import cv2
+import ffmpeg
 import os
-os.environ["OPENCV_FFMPEG_READ_ATTEMPTS"] = "8192"
+from tkinter import filedialog, messagebox, simpledialog
 
 def trim_and_export(self, session_id=None):
     if not self.video_path:
@@ -25,125 +24,86 @@ def trim_and_export(self, session_id=None):
         save_path = os.path.join(videos_dir, f"{save_name}.mp4")
     else:
         save_path = os.path.join(videos_dir, f"{session_id}.mp4")
-    
-    cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG)
-    cap.set(cv2.CAP_PROP_AUDIO_STREAM, -1)
-    
-    # Determine output size from first frame (after rotation/crop)
+
     crop = self.crop_rect or self.original_crop_rect
-    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-    ret, test_frame = cap.read()
-    if not ret:
-        messagebox.showerror("Error", "Failed to read frame to determine output size.")
-        cap.release()
-        return
 
-    # Apply rotation
-    if self.rotation_angle == 90:
-        test_frame = cv2.rotate(test_frame, cv2.ROTATE_90_CLOCKWISE)
-    elif self.rotation_angle == 180:
-        test_frame = cv2.rotate(test_frame, cv2.ROTATE_180)
-    elif self.rotation_angle == 270:
-        test_frame = cv2.rotate(test_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    try:
+        clip_paths = []
+        temp_dir = os.path.join(folder_dir, '_temp_clips')
+        os.makedirs(temp_dir, exist_ok=True)
 
-    # Apply crop (if any)
-    if crop:
-        x1, y1, x2, y2 = crop
-        test_frame = test_frame[y1:y2, x1:x2]
+        total_clips = len(self.clip_ranges)
+        self.progress["value"] = 0
+        self.progress["maximum"] = total_clips
+        self.progress.pack()
+        self.root.update_idletasks()
 
-    export_height, export_width = test_frame.shape[:2]
-    
-    cap.release()
+        for i, (start, end) in enumerate(self.clip_ranges):
+            if end < start:
+                continue
 
-    # Setup video writer - try codecs in order of reliability
-    out = None
-    codec_list = [
-        ('mp4v', '.mp4'),
-        ('XVID', '.avi'),
-        ('MJPG', '.avi'),
-        ('X264', '.mp4')
-    ]
-    
-    for codec, ext in codec_list:
-        # Adjust filename extension if needed
-        if codec != 'mp4v' and save_path.endswith('.mp4'):
-            test_path = save_path.replace('.mp4', ext)
-        else:
-            test_path = save_path
-            
-        try:
-            fourcc = cv2.VideoWriter_fourcc(*codec)
-            out = cv2.VideoWriter(test_path, fourcc, self.fps, (export_width, export_height))
-            if out.isOpened():
-                save_path = test_path  # Use the working path
-                print(f"Using codec: {codec}")
-                break
-            out.release()
-        except:
-            continue
+            start_time = start / self.fps
+            duration = (end - start + 1) / self.fps
+            clip_path = os.path.join(temp_dir, f"clip_{i}.mp4")
 
-    if not out or not out.isOpened():
-        messagebox.showerror("Export Error", "Failed to create output video with any available codec.")
-        return
+            stream = ffmpeg.input(self.video_path, ss=start_time, t=duration)
 
-    total_export_frames = sum(max(0, end - start + 1) for start, end in self.clip_ranges)
-    self.progress["value"] = 0
-    self.progress["maximum"] = total_export_frames
-    self.progress.pack()
-    self.root.update_idletasks()
+            # Video filters
+            video = stream.video
 
-    written_frames = 0
-
-    for start, end in self.clip_ranges:
-        if end < start:
-            continue
-
-        # Reopen video capture for each clip range for reliable seeking
-        cap = cv2.VideoCapture(self.video_path, cv2.CAP_FFMPEG)
-        cap.set(cv2.CAP_PROP_AUDIO_STREAM, -1)
-        
-        # Read and discard frames until we reach start position
-        for i in range(start):
-            cap.grab()
-        
-        # Now read and write the frames we want
-        for frame_num in range(end - start + 1):
-            ret, frame = cap.read()
-            if not ret:
-                print(f"Failed to read frame at position {start + frame_num}")
-                break
-
-            # Rotate
             if self.rotation_angle == 90:
-                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                video = video.filter('transpose', 1)
             elif self.rotation_angle == 180:
-                frame = cv2.rotate(frame, cv2.ROTATE_180)
+                video = video.filter('transpose', 1).filter('transpose', 1)
             elif self.rotation_angle == 270:
-                frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                video = video.filter('transpose', 2)
 
-            # Crop (if any)
             if crop:
                 x1, y1, x2, y2 = crop
-                frame = frame[y1:y2, x1:x2]
+                video = video.filter('crop', x2 - x1, y2 - y1, x1, y1)
 
-            if frame.shape[1] != export_width or frame.shape[0] != export_height:
-                messagebox.showerror("Export Error",
-                                     f"Frame size mismatch: got {frame.shape[1]}x{frame.shape[0]}, expected {export_width}x{export_height}")
-                cap.release()
-                out.release()
-                self.progress.pack_forget()
-                return
+            # If no filters applied, use stream copy (fast), otherwise re-encode
+            needs_encode = self.rotation_angle != 0 or crop
+            if needs_encode:
+                out = ffmpeg.output(video, clip_path, vcodec='libx264', an=None)
+            else:
+                out = ffmpeg.output(video, clip_path, vcodec='copy', an=None)
 
-            out.write(frame)
-            written_frames += 1
-            self.progress["value"] = written_frames
+            ffmpeg.run(out, overwrite_output=True, quiet=True)
+            clip_paths.append(clip_path)
+
+            self.progress["value"] = i + 1
             self.root.update_idletasks()
-        
-        cap.release()
 
-    out.release()
+        # Concatenate clips if more than one
+        if len(clip_paths) == 1:
+            os.rename(clip_paths[0], save_path)
+        else:
+            # Write concat list file
+            concat_list_path = os.path.join(temp_dir, 'concat_list.txt')
+            with open(concat_list_path, 'w') as f:
+                for clip_path in clip_paths:
+                    f.write(f"file '{clip_path}'\n")
+
+            ffmpeg.input(concat_list_path, format='concat', safe=0).output(
+                save_path, vcodec='copy'
+            ).run(overwrite_output=True, quiet=True)
+
+        # Cleanup temp files
+        for clip_path in clip_paths:
+            try:
+                os.remove(clip_path)
+            except:
+                pass
+        try:
+            os.rmdir(temp_dir)
+        except:
+            pass
+
+    except ffmpeg.Error as e:
+        messagebox.showerror("Export Error", f"FFmpeg error:\n{e.stderr.decode()}")
+        return
+
     self.progress.pack_forget()
-    
-    print(f"Expected to write {total_export_frames} frames, actually wrote {written_frames} frames")
-    messagebox.showinfo("Export", f"Exported {written_frames} frames to:\n{save_path}")
+    messagebox.showinfo("Export", f"Exported to:\n{save_path}")
     return folder_dir
